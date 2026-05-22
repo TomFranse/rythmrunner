@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-05-22
+
+### Added
+
+- **Rhythm session core**: Step detection from device motion (with dev desktop simulator), Tone.js transport-driven drums and piano layers, synesthetic pulsing UI, and motion permission gate on `HomePage`.
+- **Tone.js** dependency and unit tests for step detection, audio engine, motion permission, and pattern services.
+- **Documentation**: `documentation/DOC_SDD_RHYTHM_RUNNER.md` and `documentation/jobs/temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md`.
+
+### Changed
+
+- **`src/features/rhythm/README.md`**: Full feature contract (Purpose, Structure, Dependencies).
+- **`documentation/DOC_INDEX.md`**: Links to SDD and implementation plan.
+
 ## [0.20.0] - 2026-05-22
 
 ### Removed

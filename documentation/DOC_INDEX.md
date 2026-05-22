@@ -13,6 +13,8 @@ Central navigation for project documentation. For authoritative rules and proces
 | **Agent: validate plan or implementation** | [`.cursor/skills/validate/SKILL.md`](../.cursor/skills/validate/SKILL.md) |
 | **Agent: lightweight PIV (quick-piv)** | [`.cursor/skills/quick-piv/SKILL.md`](../.cursor/skills/quick-piv/SKILL.md) |
 | **Agent skill: persist lessons (learn)** | [`.cursor/skills/learn/SKILL.md`](../.cursor/skills/learn/SKILL.md) |
+| **Software Design Document (RhythmRunner)** | [DOC_SDD_RHYTHM_RUNNER.md](./DOC_SDD_RHYTHM_RUNNER.md) |
+| **RhythmRunner implementation plan** | [temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md](./jobs/temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md) |
 | **Architecture** | [ARCHITECTURE.md](../ARCHITECTURE.md) |
 | **Architecture migration** | [DOC_ARCHITECTURE_MIGRATION_INSTRUCTIONS.md](./DOC_ARCHITECTURE_MIGRATION_INSTRUCTIONS.md) |
 | **TanStack Query** | [DOC_TANSTACK_QUERY.md](./DOC_TANSTACK_QUERY.md) |
