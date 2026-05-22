@@ -50,7 +50,7 @@ export function useStepDetection({
       bpm: result.bpm,
       lastStepAt: detector.lastPeakAt,
       isFallback: result.isFallback,
-      sampleRate: 25,
+      sampleRate: detector.sampleRateHz,
     });
   }, [enabled, magnitude, timestamp]);
 

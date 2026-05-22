@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.2] - 2026-05-22
+
+### Fixed
+
+- **Step detection BPM accuracy**: Replace simple EMA peak thresholding with Oxford-style windowed peak detection — 50 Hz resampling, 3 Hz FIR low-pass, mean-difference scoring, σ-threshold candidates, and 200 ms max-per-window step confirmation to reduce missed beats and heel–toe double counts.
+
+### Changed
+
+- **Motion simulator**: Emit 50 Hz stride waveform (peak + valleys) so desktop dev testing matches the production detector pipeline.
+
+### Tests
+
+- **`stepDetectionService`**: Synthetic stride helper and updated convergence, debounce, and fallback tests for the new pipeline.
+
 ## [0.24.1] - 2026-05-22
 
 ### Fixed

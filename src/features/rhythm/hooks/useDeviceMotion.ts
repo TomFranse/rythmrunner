@@ -2,8 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   intervalMsForBpm,
   magnitudeForSimulatorPeak,
+  magnitudeForSimulatorValley,
   DEFAULT_SIMULATOR_BPM,
 } from "@/features/rhythm/services/motionSimulatorService";
+import { TARGET_SAMPLE_RATE_HZ } from "@/features/rhythm/services/stepDetectionService";
 import {
   createGravityEstimator,
   sampleFromDeviceMotion,
@@ -25,6 +27,7 @@ export function useDeviceMotion({
 }: UseDeviceMotionOptions) {
   const [latestSample, setLatestSample] = useState<MotionSample | null>(null);
   const simulatorNextAt = useRef(0);
+  const simulatorStridePhase = useRef(0);
   const gravityEstimatorRef = useRef(createGravityEstimator());
 
   const handleMotion = useCallback((event: DeviceMotionEvent) => {
@@ -43,22 +46,37 @@ export function useDeviceMotion({
     gravityEstimatorRef.current = createGravityEstimator();
 
     if (simulatorEnabled || !isMotionSupported()) {
-      const intervalMs = intervalMsForBpm(simulatorBpm);
+      const strideMs = intervalMsForBpm(simulatorBpm);
+      const sampleMs = 1000 / TARGET_SAMPLE_RATE_HZ;
       simulatorNextAt.current = performance.now();
+      simulatorStridePhase.current = 0;
 
       const timer = window.setInterval(() => {
         const now = performance.now();
         if (now < simulatorNextAt.current) {
           return;
         }
-        simulatorNextAt.current = now + intervalMs;
+        simulatorNextAt.current = now + sampleMs;
+
+        const phase = simulatorStridePhase.current;
+        simulatorStridePhase.current += sampleMs;
+        if (simulatorStridePhase.current >= strideMs) {
+          simulatorStridePhase.current = 0;
+        }
+
+        const peakCenter = strideMs * 0.5;
+        const y =
+          Math.abs(phase - peakCenter) < sampleMs * 2
+            ? magnitudeForSimulatorPeak()
+            : magnitudeForSimulatorValley();
+
         setLatestSample({
           x: 0,
-          y: magnitudeForSimulatorPeak(),
+          y,
           z: 0,
           timestamp: now,
         });
-      }, 50);
+      }, sampleMs);
 
       return () => {
         window.clearInterval(timer);
