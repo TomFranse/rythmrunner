@@ -1,7 +1,7 @@
 {
-  "name": "vite-mui-supabase-starter",
+  "name": "rythmrunner",
   "private": true,
-  "version": "0.19.1",
+  "version": "0.24.0",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
@@ -31,7 +31,6 @@
     "validate:structure": "node scripts/project-structure-validator.js",
     "validate:structure:json": "node scripts/project-structure-validator.js --format=json",
     "validate:version-sync": "node scripts/validate-version-sync.js",
-    "validate:app-config": "node scripts/validate-app-config.js",
     "validate:docs:links": "node scripts/validate-markdown-links.js",
     "validate:docs:refs": "node scripts/validate-cursor-doc-references.js",
     "validate:docs": "pnpm validate:docs:links && pnpm validate:docs:refs",
@@ -40,26 +39,25 @@
     "validate:feature-docs:strict": "node scripts/validate-feature-docs.js --strict",
     "validate:feature-docs:json": "node scripts/validate-feature-docs.js --format=json",
     "validate:feature-docs:staged": "node scripts/validate-feature-docs-staged.js",
-    "arch:check:staged": "node scripts/arch-check-staged.js",
-    "airtable:meta-dump": "node scripts/airtable-meta-dump.js",
-    "airtable:sample": "node scripts/airtable-sample-records.js"
+    "arch:check:staged": "node scripts/arch-check-staged.js"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.62.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
-    "@supabase/supabase-js": "^2.89.0",
-    "airtable": "^0.12.2",
+    "@tanstack/react-query": "^5.62.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.11.0"
+    "react-router-dom": "^7.11.0",
+    "soundfont-player": "^0.12.0",
+    "tone": "^15.1.22",
+    "workbox-window": "^7.4.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@tanstack/eslint-plugin-query": "^5.62.0",
     "@tanstack/react-query-devtools": "^5.62.0",
-    "@eslint/js": "^9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
@@ -90,6 +88,7 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.0.16"
   },
   "lint-staged": {

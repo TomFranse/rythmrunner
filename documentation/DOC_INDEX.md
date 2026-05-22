@@ -1,6 +1,6 @@
 # Documentation Index
 
-Central navigation for boilerplate documentation. For authoritative rules and process, see the SSOT locations below.
+Central navigation for project documentation. For authoritative rules and process, see the SSOT locations below.
 
 ## Quick Links
 
@@ -13,15 +13,12 @@ Central navigation for boilerplate documentation. For authoritative rules and pr
 | **Agent: validate plan or implementation** | [`.cursor/skills/validate/SKILL.md`](../.cursor/skills/validate/SKILL.md) |
 | **Agent: lightweight PIV (quick-piv)** | [`.cursor/skills/quick-piv/SKILL.md`](../.cursor/skills/quick-piv/SKILL.md) |
 | **Agent skill: persist lessons (learn)** | [`.cursor/skills/learn/SKILL.md`](../.cursor/skills/learn/SKILL.md) |
+| **Software Design Document (RhythmRunner)** | [DOC_SDD_RHYTHM_RUNNER.md](./DOC_SDD_RHYTHM_RUNNER.md) |
+| **RhythmRunner implementation plan** | [temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md](./jobs/temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md) |
 | **Architecture** | [ARCHITECTURE.md](../ARCHITECTURE.md) |
 | **Architecture migration** | [DOC_ARCHITECTURE_MIGRATION_INSTRUCTIONS.md](./DOC_ARCHITECTURE_MIGRATION_INSTRUCTIONS.md) |
-| **App config file** | [DOC_APP_CONFIG_FILE.md](./DOC_APP_CONFIG_FILE.md) |
 | **TanStack Query** | [DOC_TANSTACK_QUERY.md](./DOC_TANSTACK_QUERY.md) |
 | **Feature-local README enforcement** | [DOC_FEATURE_LOCAL_README.md](./DOC_FEATURE_LOCAL_README.md) |
-| **Setup states & transitions** | [src/features/setup/docs/setup-states-and-transitions.md](../src/features/setup/docs/setup-states-and-transitions.md) |
-| **Testing app config** | [src/features/setup/docs/testing-app-config.md](../src/features/setup/docs/testing-app-config.md) |
-| **Testing Supabase setup** | [src/features/setup/docs/testing-supabase-setup.md](../src/features/setup/docs/testing-supabase-setup.md) |
-| **App code modification** | [src/features/setup/docs/app-code-modification.md](../src/features/setup/docs/app-code-modification.md) |
 | **Complexity reduction** | See `.cursor/rules/architecture/RULE.md` complexity section |
 
 ## SSOT Map (Single Source of Truth)
@@ -33,4 +30,3 @@ Central navigation for boilerplate documentation. For authoritative rules and pr
 | Architecture patterns | `.cursor/rules/architecture/RULE.md` |
 | Project structure | `projectStructure.config.cjs` |
 | Dependency rules | `.dependency-cruiser.cjs` |
-| App config schema | `documentation/DOC_APP_CONFIG_FILE.md` |

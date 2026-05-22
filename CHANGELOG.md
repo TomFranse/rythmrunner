@@ -7,6 +7,107 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-05-22
+
+### Added
+
+- **PWA install**: Web app manifest, service worker, and `InstallAppPrompt` for Android install and iOS Add to Home Screen guidance.
+- **App branding**: Yellow circle logo (`icon.svg`) with favicon, Apple touch icon, and 192/512 manifest icons.
+
+### Changed
+
+- **Dependencies**: `vite-plugin-pwa`, `workbox-window`; removed default Vite favicon.
+
+## [0.23.1] - 2026-05-22
+
+### Changed
+
+- **Beatgrid role instrument pools**: Add `BEAT_GRID_PERCUSSION_INSTRUMENTS` (kick, snare, hi-hats, cymbals, and related GM drums) to bass, pad, harmony, and lead pools so cycles can pick drumkit sounds instead of piano-only harmony.
+
+### Tests
+
+- **`beatGridRoleService.test.ts`**: Assert role assignment can draw from percussion-capable pools.
+
+## [0.23.0] - 2026-05-22
+
+### Added
+
+- **Musical arrangement**: Section modes (intro, groove, build, peak, cooldown) gate which beatgrid layers trigger notes.
+- **Phrase rests**: Upper layers silent on beats 15, 31, 47, 63; L64 keeps bass anchor.
+- **Role separation**: Per-layer instruments (bass, pad, harmony, lead), trigger density, and note durations via `beatGridRoleService` and `ROLE_INSTRUMENT_GROUPS`.
+- **Arpeggiation**: `getArpeggiatedMidiForLayer` spreads chord tones across beats with per-layer phase offsets.
+- **Services and tests**: `beatGridArrangementService`, `beatGridRoleService`, and unit tests for arrangement, roles, and arpeggio.
+
+### Changed
+
+- **Beatgrid playback**: `beatGridAudioService` uses `shouldTriggerLayer`, role instruments, and role-based note lengths instead of one hit per active layer per beat.
+- **`src/features/rhythm/README.md`**: Documents section modes, phrase rests, roles, and arpeggio.
+
+### Documentation
+
+- **`documentation/jobs/temp_job_musical-arrangement/DEVELOPMENT_PLAN.md`**: Implementation record for musical arrangement upgrade.
+
+## [0.22.1] - 2026-05-22
+
+### Fixed
+
+- **Pulsing circles audio sync**: Subscribe React UI to each transport beat; drive one pulse per beat from transport BPM instead of a free-running CSS loop and step-detector tempo.
+
+## [0.22.0] - 2026-05-22
+
+### Added
+
+- **Beatgrid audio layering**: 64-beat cycle with four duration layers (64/32/16/8), gleitz FluidR3_GM soundfonts via `soundfont-player`, harmonic voicing (I–IV–I–V), and 70/30 fade vs cut envelopes.
+- **Beatgrid services**: `beatGridLayerService`, `beatGridCycleService`, `beatGridHarmonyService`, `beatGridAudioService`, `sampleLibraryService`, and `beatGridCatalog`.
+- **UI**: Four pulsing circles mapped to beatgrid layers; `PulsingCircles` test.
+
+### Changed
+
+- **Audio engine**: Quarter-note Transport schedule replaces BPM-band drum/piano synths; closer layer levels (−3 to 0 dB).
+- **Session UI**: Removed top bar, titles, and motion permission copy; minimal Enable motion button only.
+- **Viewport layout**: `viewportLayout` utilities for full-height session without toolbar offset.
+
+### Removed
+
+- **`drumPatternService`** and **`pianoLayerService`** (superseded by beatgrid).
+- **Topbar** and session marketing copy (title, subtitle, motion permission text).
+
+### Changed
+
+- **`documentation/DOC_SDD_RHYTHM_RUNNER.md`** and **`src/features/rhythm/README.md`**: Document implemented beatgrid architecture.
+
+## [0.21.0] - 2026-05-22
+
+### Added
+
+- **Rhythm session core**: Step detection from device motion (with dev desktop simulator), Tone.js transport-driven drums and piano layers, synesthetic pulsing UI, and motion permission gate on `HomePage`.
+- **Tone.js** dependency and unit tests for step detection, audio engine, motion permission, and pattern services.
+- **Documentation**: `documentation/DOC_SDD_RHYTHM_RUNNER.md` and `documentation/jobs/temp_job_rhythm-runner-core/DEVELOPMENT_PLAN.md`.
+
+### Changed
+
+- **`src/features/rhythm/README.md`**: Full feature contract (Purpose, Structure, Dependencies).
+- **`documentation/DOC_INDEX.md`**: Links to SDD and implementation plan.
+
+## [0.20.0] - 2026-05-22
+
+### Removed
+
+- **Boilerplate setup wizard**: `src/features/setup/`, `SetupPage`, dev API plugin (`vite-plugin-dev-api.ts`), `app.config.json`, and related scripts/docs.
+- **Auth and login**: `src/features/auth/`, `AuthContext`, `ProfileMenu`, auth callback route, and redirect utilities.
+- **Supabase and Airtable**: client libraries, shared services/hooks, Airtable CLI scripts, and agent skills.
+- **Onboarding skills**: `/start` and `/complete-setup` cursor skills (setup flow no longer applies).
+
+### Changed
+
+- **App shell**: Single home route for Rhythm Runner; simplified `Topbar`, `HomePage`, and `App.tsx` (no auth provider).
+- **Project identity**: Package name `rythmrunner`, page title, and branding updated from starter template.
+- **CI and tooling**: Dropped `validate:app-config` step; updated `projectStructure.config.cjs`, docs index, and cursor rules/skills for the leaner codebase.
+
+### Added
+
+- **`src/features/rhythm/`**: Feature placeholder README for gyro-driven beat generation work.
+
 ## [0.19.1] - 2026-04-19
 
 ### Changed

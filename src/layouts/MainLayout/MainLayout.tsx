@@ -1,13 +1,18 @@
 import { Outlet } from "react-router-dom";
-import { Container, Box } from "@mui/material";
+import { Box } from "@mui/material";
 
 export const MainLayout = () => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {/* AppBar is handled by Topbar component (always visible) */}
-      <Container component="main" sx={{ flex: 1, py: 4 }}>
-        <Outlet />
-      </Container>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        minHeight: 0,
+        width: "100%",
+      }}
+    >
+      <Outlet />
     </Box>
   );
 };

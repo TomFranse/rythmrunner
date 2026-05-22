@@ -9,7 +9,7 @@ disable-model-invocation: true
 Load project context at the start of a new session. Build an understanding of this boilerplate’s structure, governance, and active state before tackling tasks.
 
 **When to use:** New chat, ambiguous task, or before larger refactors.  
-**Related:** For architecture/quality gate, use `.cursor/skills/check/SKILL.md`. For planning features, use `.cursor/skills/plan/SKILL.md`. For onboarding a human, use `.cursor/skills/start/SKILL.md`.
+**Related:** For architecture/quality gate, use `.cursor/skills/check/SKILL.md`. For planning features, use `.cursor/skills/plan/SKILL.md`.
 
 ## Objective
 
@@ -24,8 +24,8 @@ Align with project rules and architecture so work does not violate enforced boun
 - **Tracked files:** Run `git ls-files` (large repos: in PowerShell use `git ls-files | Select-Object -First 150` instead of `head`).
 - **Architecture overview:** Read `ARCHITECTURE.md` (folder layout, TanStack Query, layers, path aliases).
 - **Doc index:** Read `documentation/DOC_INDEX.md` (SSOT map, quick links).
-- **Features (discover, do not assume):** List `src/features/` — this boilerplate ships with **`auth`** and **`setup`** only; forks may add more. Do not use a fixed feature list from another repo.
-- **Entry points:** Read `index.html`, `src/main.tsx`, `src/App.tsx` (provider order: `QueryProvider` → `AuthProvider` → `BrowserRouter`).
+- **Features (discover, do not assume):** List `src/features/` — do not use a fixed feature list from another repo. Rhythm Runner currently has **`rhythm`** as the primary feature area.
+- **Entry points:** Read `index.html`, `src/main.tsx`, `src/App.tsx` (provider order: `QueryProvider` → `BrowserRouter`).
 
 ### 2. Governance and rules
 
@@ -52,7 +52,7 @@ Deliver a concise, scannable summary:
 
 ### Project overview
 
-- Application type (Vite + React + MUI + Supabase starter).
+- Application type (Rhythm Runner — Vite + React + MUI; beat generation from gyro data).
 - Primary libraries (from `package.json`).
 - Current version (`package.json` → `version`).
 

@@ -163,6 +163,12 @@ When symptoms match known patterns, prioritize these hypotheses first:
 - Symptom: Context hook throws "must be used within Provider" error during hot reload, but works fine on full page refresh. Error disappears after refresh.
 - Root cause: React Fast Refresh temporarily unmounts providers during hot reload while components using the context are still rendering, causing context to be undefined
 - Key question: "Is this error only happening during hot reload in development mode, not on full refresh?"
+
+**Primary control appears dead (no UI change, no audio):**
+- Symptom class: Button or gesture handler seems to do nothing — no state transition, no feedback, no visible error.
+- Likely cause classes: Uncaught exception in async handler before state update; user-activation window expired before audio/API unlock; invalid third-party SDK initialization options.
+- Discriminator question: "Does wrapping the handler body in try/catch surface an error, and does UI state update if SDK init is skipped?"
+- First diagnostic move: Run the handler's first awaited/third-party call synchronously in the click stack; log or display caught errors; verify vendor API option shapes against current major version docs.
 - Debug approach: Make context hook return a safe default in development mode instead of throwing. Check `import.meta.env?.MODE === 'development'` and return fallback context. Still throw in production to catch real bugs.
 
 **React State/URL Desynchronization - Component Checks Only State, Ignores URL Params:**

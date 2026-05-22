@@ -1,53 +1,41 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { QueryProvider } from "@shared/context/QueryProvider";
-import { AuthProvider } from "@shared/context/AuthContext";
-import { Topbar } from "@/components/common/Topbar";
+import { viewportMainSx, viewportRootSx } from "@shared/utils/viewportLayout";
 import { MainLayout } from "@/layouts/MainLayout/MainLayout";
+import { InstallAppPrompt } from "@/components/common/InstallAppPrompt";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
-import { AuthCallbackPage } from "@pages/AuthCallbackPage";
 
 const HomePage = lazy(() => import("@pages/HomePage").then((m) => ({ default: m.HomePage })));
-const SetupPage = lazy(() => import("@pages/SetupPage").then((m) => ({ default: m.SetupPage })));
 
 function AppContent() {
-  const theme = useTheme();
-
   return (
-    <>
-      <Topbar />
-      <Box
-        sx={{
-          pt: `${theme.mixins.toolbar.minHeight}px`,
-        }}
-      >
+    <Box sx={viewportRootSx}>
+      <InstallAppPrompt />
+      <Box component="main" sx={viewportMainSx(0)}>
         <QueryErrorBoundary>
           <Suspense fallback={<PageLoadingState />}>
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<HomePage />} />
               </Route>
-              <Route path="/auth/callback" element={<AuthCallbackPage />} />
-              <Route path="/setup" element={<SetupPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </QueryErrorBoundary>
       </Box>
-    </>
+    </Box>
   );
 }
 
 function App() {
   return (
     <QueryProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </AuthProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
     </QueryProvider>
   );
 }
