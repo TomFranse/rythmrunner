@@ -1,0 +1,207 @@
+---
+description: "Project-specific rate limiting and security patterns for Edge Functions"
+alwaysApply: false
+globs: ["**/supabase/functions/**/*.ts"]
+---
+
+# Rate Limiting and Security Rules
+
+Rate limiting patterns for Supabase Edge Functions. See Legacy section for deprecated Firebase implementation.
+
+## When to Implement Rate Limiting
+
+Implement rate limiting for:
+
+### Expensive Operations
+- Database scans (list operations, full table queries)
+- Batch operations (backfill, migrate, sync)
+- External API calls with costs (OpenAI, payment gateways)
+- File uploads/downloads
+- Report generation
+
+### Write Operations
+- User data mutations (profile updates, permission changes)
+- Status changes (feature toggles, developer status)
+- Content creation (posts, messages)
+- Any operation modifying shared state
+
+### Authentication-Related Functions
+- Password reset requests
+- Email verification sends
+- Account creation
+- Login attempts (use exponential backoff)
+
+### Public or Semi-Public Endpoints
+- Callable functions accessible by non-admin users
+- Webhooks
+- API proxies
+
+## Rate Limiting Strategy
+
+### Storage: PostgreSQL Table
+
+Store rate limit counters in a `rate_limits` table with:
+- Composite primary key: `{user_id}_{function_name}`
+- Fields: `user_id`, `function_name`, `count`, `window_start`, `last_request`, timestamps
+- Index on `(user_id, function_name)` for query performance
+
+### Row Level Security
+
+**SSOT:** See `security/RULE.md` for RLS policy patterns.
+
+Enable RLS on `rate_limits` table. Create policy blocking all client access (service role bypasses RLS, allowing Edge Functions access while blocking clients).
+
+## Implementation Pattern
+
+### Helper Function
+
+Create reusable rate limit checker in `supabase/functions/_shared/rateLimit.ts`:
+
+Function signature: `checkRateLimit(userId, action, maxRequests, windowMs): Promise<boolean>`
+
+Behavior:
+- Use service role key to access `rate_limits` table
+- Generate limit ID as `{userId}_{action}`
+- Fetch existing record or create new one on first request
+- Reset counter when time window expires
+- Increment counter within window
+- Return `false` when limit exceeded, `true` otherwise
+- Fail open: return `true` on errors to avoid blocking legitimate users
+
+### Apply to Edge Functions
+
+Call rate limit check after authentication, before main logic:
+
+1. Authenticate user
+2. Authorize user (if needed)
+3. Check rate limit
+4. Validate input
+5. Execute main logic
+6. Handle errors
+
+Return HTTP 429 with user-friendly message when rate limit exceeded.
+
+## Rate Limit Guidelines
+
+### Suggested Limits by Operation Type
+
+| Operation Type | Limit | Window | Reasoning |
+|---------------|-------|--------|-----------|
+| Read-heavy (lists, queries) | 10-20 | 1 minute | Allow reasonable browsing |
+| Write operations | 5-10 | 1 minute | Prevent spam/abuse |
+| Expensive operations | 2-5 | 5 minutes | Protect costs |
+| Batch operations | 1-2 | 5-10 minutes | Very expensive |
+| Authentication | 3-5 | 15 minutes | Prevent brute force |
+| Password reset | 2 | 1 hour | Prevent email spam |
+
+### Adjust Limits Based On
+- User role (admins/developers can have higher limits)
+- Cost (stricter limits for paid API calls)
+- Database load (stricter limits for heavy queries)
+- Abuse risk (stricter limits for public endpoints)
+
+## Error Messages
+
+Use clear, user-friendly messages that specify retry timing:
+- "Rate limit exceeded. Please try again in a minute."
+- "Rate limit exceeded. This is an expensive operation. Please try again in 5 minutes."
+- "Too many requests. Please wait 15 minutes before trying again."
+
+Avoid generic messages like "Rate limit exceeded" or "Error 429".
+
+## Testing
+
+### Manual Testing
+Execute multiple sequential requests exceeding the limit. Verify first N requests succeed and subsequent requests return 429.
+
+### Automated Testing
+Create test that makes `maxRequests` successful calls, then verify next call returns `false` from rate limit checker.
+
+## Monitoring and Cleanup
+
+### Monitor Rate Limits
+Query `rate_limits` table for records near limit threshold. Look for high counts, users hitting multiple limits, and abuse patterns.
+
+### Automatic Cleanup
+Delete records older than 24 hours using:
+- PostgreSQL function with pg_cron scheduler, or
+- Scheduled Edge Function that deletes old records
+
+## Privacy and Security
+
+### Benefits
+- No third-party tracking
+- User privacy preserved
+- Full control over limits and data
+- GDPR-friendly
+
+### Security Rules
+
+**SSOT:** See `security/RULE.md` for RLS policy patterns.
+
+Protect `rate_limits` table with RLS policy blocking all client access.
+
+### Fail Open vs Fail Closed
+
+Default implementation uses "fail open": allow requests when rate limit check fails due to errors.
+
+Reasoning:
+- Prevents blocking legitimate users during outages
+- Better UX than false positives
+- Logs errors for monitoring
+
+Use "fail closed" for:
+- Authentication endpoints (security > UX)
+- Payment processing
+- Critical operations
+
+## Checklist for New Functions
+
+Before deploying:
+- [ ] Function is abusable (expensive/write/public)?
+- [ ] Added `checkRateLimit()` call?
+- [ ] Chose appropriate limits (requests/window)?
+- [ ] Error message is user-friendly?
+- [ ] Added JSDoc with rate limit info?
+- [ ] Tested rate limit manually?
+- [ ] `rate_limits` table protected with RLS?
+- [ ] Using service role key for rate limit checks?
+
+## Summary
+
+Every abusable Edge Function should:
+1. Authenticate the user
+2. Authorize the user (if needed)
+3. Check rate limit
+4. Validate input
+5. Execute main logic
+6. Handle errors gracefully
+
+Rate limiting protects:
+- Supabase costs
+- External API costs (OpenAI, etc.)
+- Database from abuse
+- User experience (no slowdowns from abuse)
+
+Without:
+- Third-party tracking
+- User privacy concerns
+- Complex external dependencies
+
+## Legacy: Firebase Cloud Functions (Deprecated)
+
+> **Note:** Legacy Firebase Cloud Functions rate limiting implementation. Project migrated to Supabase Edge Functions. Kept for reference during migration period.
+
+Previously used Firestore collection with document ID format `{uid}_{functionName}` containing `count`, `windowStart`, and `lastRequest` fields.
+
+Migration: Replaced with Supabase PostgreSQL table and Edge Function implementation (see above).
+
+## Related Rules
+
+**When modifying this rule, check these rules for consistency:**
+- `security/RULE.md` - **SSOT** for RLS policy patterns
+- `cloud-functions/RULE.md` - Edge Functions architecture and when to use them
+- `database/RULE.md` - Database migration patterns for rate_limits table
+
+**Rules that reference this rule:**
+- `security/RULE.md` - May reference rate limiting as a security pattern

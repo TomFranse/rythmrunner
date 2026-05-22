@@ -1,0 +1,27 @@
+# Copy changelog to public/documentation for build
+# Note: Manual copy recommended - copy CHANGELOG.md to public/documentation/CHANGELOG.md
+# echo "Copying changelog..."
+# pnpm run copy-changelog
+
+# Linting (includes complexity checks via ESLint)
+# Complexity SSOT: .eslintrc.json lines 65-70
+pnpm lint-staged || exit 1
+
+# Enforce feature-local README updates when feature code changes
+echo "Running feature documentation validation for staged files..."
+pnpm validate:feature-docs:staged || exit 1
+
+# Validate docs links and rule/command file references
+echo "Running documentation reference validation..."
+pnpm validate:docs || exit 1
+
+# Run type checking (fast, catches TypeScript errors)
+# Exit code handling prevents Cursor hangs (see workflow/RULE.md lines 312-349)
+echo "Running type check..."
+pnpm type-check || exit 1
+
+# Run architecture validation for staged files only
+# Full validation available via: pnpm validate:all
+echo "Running architecture validation for staged files..."
+pnpm validate:structure:staged || exit 1
+pnpm arch:check:staged || exit 1

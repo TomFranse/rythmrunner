@@ -1,0 +1,348 @@
+---
+description: "Global code style and formatting standards for all projects"
+alwaysApply: true
+---
+
+# Code Style Standards
+
+## Quick Reference: Critical Rules
+
+**CRITICAL**: These rules must be followed without exception:
+
+- **Double quotes**: ALWAYS use `"` not `'` for strings
+- **Path aliases**: Always use `@/` prefix (e.g., `@/hooks/*`, `@/components/*`) - never relative imports
+  - **SSOT:** See `architecture/RULE.md` for complete path alias mappings
+- **TypeScript strict mode**: REQUIRED (`strict: true`)
+- **Arrow functions**: Always use parentheses: `(x) => x`
+- **Equality**: Use `===` (never `==`)
+- **Variables**: Use `const`/`let` (never `var`)
+- **No `any`**: Explicit types required
+- **Complexity**: Functions ≤ 10 cyclomatic, ≤ 15 cognitive, ≤ 100 lines, ≤ 4 nesting
+
+See detailed sections below for complete guidance.
+
+## Naming Conventions
+
+### Variables and Functions
+- Use camelCase for variables and functions
+- Use descriptive names that indicate purpose
+- Avoid abbreviations unless widely understood
+
+### Constants
+- Use UPPER_SNAKE_CASE for constants
+- Group related constants together
+
+### Types and Interfaces
+- Use PascalCase for types and interfaces
+- Prefix interfaces with `I` only if it adds clarity
+- Use descriptive names that indicate structure
+- **Interfaces for objects, types for unions**
+
+### File Naming
+- Components: `TodoItem.tsx` (PascalCase)
+- Hooks: `useTodos.ts` (camelCase, `use` prefix)
+- Services: `todoService.ts` (camelCase)
+- Types: `todo.types.ts` (camelCase, `.types.ts` suffix)
+
+## Formatting
+
+**SSOT:** Formatting is handled by Prettier. See project `.prettierrc` configuration.
+
+**Critical exceptions** (not handled by Prettier):
+- **Double quotes**: ALWAYS use `"` not `'` (see Quick Reference)
+- **Arrow functions**: Always use parentheses: `(x) => x` (see Quick Reference)
+
+### Line Endings
+- **IMPORTANT**: Always use Linux/Unix line endings: LF (`\n`)
+- Never use Windows line endings (CRLF) in code files
+- Configure your editor and Git to use LF line endings
+
+## Documentation
+
+### JSDoc/TSDoc
+- Document all exported functions and classes
+- Include parameter descriptions and return types
+- Use comments to explain "why", not "what"
+
+## Code Reuse
+
+### Before Adding New Code
+- **Prefer small, reusable components and hooks**
+- Before adding new functionality, search for existing components/hooks/utilities that can be reused
+- When explaining changes, note which existing pieces were checked for reuse
+- Avoid duplicated UI or logic across the codebase
+
+## Code Extraction Guidelines
+
+### When Extracting Code to New Files (Hooks, Components, Utilities)
+
+1. **Trace all usages**: For every piece of state, setter, or function being extracted:
+   - Search the original file for ALL usages
+   - Each usage must either:
+     - Move into the new extraction, OR
+     - Be exposed in the return interface/props
+   - Pay special attention to: error clearing callbacks, reset functions, state setters used in event handlers
+
+2. **Verify the consumer still compiles**: After extraction, check that every reference in the original file has a valid source—either from the new import or remaining local code.
+
+### Import Guidelines
+
+When adding external package imports:
+
+1. **Verify the package is installed**: Check `package.json` dependencies
+2. **Types may come from wrappers**: If using a library through a wrapper (e.g., TipTap through `mui-tiptap`), types often come from the wrapper, not the original package
+3. **When in doubt, use inline types**: Define types locally or use `any` with eslint-disable rather than importing from potentially unavailable packages
+
+## Code Organization
+
+### Imports
+
+**Style Concerns (this section):**
+- Group imports: external libraries first, then internal modules
+- Sort imports alphabetically within groups
+- Remove unused imports
+- **Type imports**: Use `import type {...}` and place after regular imports in each group
+
+**Architecture Concerns (SSOT: `architecture/RULE.md`):**
+- **Path aliases**: Always use `@/` prefix, never relative imports — violations are **errors**
+  - **SSOT:** See `architecture/RULE.md` for complete path alias mappings and folder structure
+- **Import direction**: See `architecture/RULE.md` for layer boundaries and import direction rules (downward only: pages → components → hooks → services → utils → types)
+- **Layer boundaries**: See `architecture/RULE.md` for what each layer can/cannot import from
+
+```typescript
+// ✅ CORRECT
+import { useTodos } from "@/hooks/useTodos";
+import { Button } from "@/components/common/Button";
+import { userService } from "@/services/userService";
+
+// ❌ WRONG
+import { useTodos } from "../../shared/hooks/useTodos"; // Use path alias instead
+import { Button } from "../../components/common/Button"; // Use path alias instead
+import * as todoService from "../services/todoService"; // Use path alias; prefer hooks over direct service imports
+```
+
+**For complete import rules:** See `architecture/RULE.md` for import direction, layer boundaries, and architectural best practices.
+
+### Exports
+- Use named exports over default exports when possible
+- Export types and interfaces explicitly
+
+## Styling Scope Standards
+
+### The Problem
+
+When a user requests a styling change (e.g., "change button color"), there are multiple places to apply it. Without asking, the assistant may apply the change at the wrong scope, leading to inconsistency and maintenance debt.
+
+### CRITICAL: Always Ask About Scope First
+
+**Before implementing any styling change, determine the appropriate scope by asking the user.**
+
+### Styling Hierarchy (most specific to most global):
+
+| Level | Location | Use For | Avoid |
+|-------|----------|---------|-------|
+| **Instance** | `sx` prop on specific usage | Layout/spacing (margins, padding, positioning) | Colors, typography, visual styling |
+| **Component** | Inside component file | Custom components with unique styling not in theme | Standard MUI components that should be consistent |
+| **Global Theme** | `src/shared/theme/defaultTheme.ts` | Colors, typography, component overrides, design tokens | One-off layout adjustments |
+
+### Decision Tree
+
+```
+Is this a design token change? (color, typography, spacing value, shadow, border)
+├─ YES → Global Theme (defaultTheme.ts)
+└─ NO → Is this a component variant? (all buttons of type X should look different)
+    ├─ YES → Theme Component Override (defaultTheme.ts → components.MuiButton.styleOverrides)
+    └─ NO → Is this layout/spacing for this specific instance?
+        ├─ YES → Instance Level (sx prop)
+        └─ NO → Is this a custom component with unique styling?
+            ├─ YES → Component Definition (inside component file)
+            └─ NO → Ask user for clarification
+```
+
+### Default Assumption
+
+When users request styling changes without specifying scope:
+- **Assume Global Theme** (most common intent)
+- **Always ask to confirm** before implementing
+- **Explain the hierarchy** so users can make informed decisions
+
+### When User Requests Styling Changes
+
+**Step 1: Identify the change type**
+- Design token (color, typography, shadow)? → Global Theme
+- Component appearance change? → Theme Component Override
+- Layout/spacing only? → Instance (`sx` prop)
+
+**Step 2: Ask the user** (required):
+
+> "At what level should this styling change be applied?
+> - **Instance level**: Only this specific usage
+> - **Component level**: All usages of this custom component
+> - **Global theme level**: All instances across the app (recommended for consistency)"
+
+**Step 3: Wait for confirmation** before implementing
+
+**Step 4: Implement at the correct level** per the decision tree
+
+### Implementation Rules
+
+```typescript
+// ✅ CORRECT: Theme file for colors, typography, component appearance
+// src/shared/theme/defaultTheme.ts
+MuiButton: {
+  styleOverrides: {
+    contained: {
+      background: "linear-gradient(...)",
+      color: "#ffffff",
+    },
+  },
+},
+
+// ✅ CORRECT: sx prop for layout/spacing only
+<Button sx={{ mt: 2, ml: 1 }}>Submit</Button>
+
+// ❌ WRONG: sx prop for colors/visual styling
+<Button sx={{ backgroundColor: "blue", color: "white" }}>Submit</Button>
+
+// ❌ WRONG: Inline styles for design tokens
+<Button style={{ backgroundColor: "blue" }}>Submit</Button>
+```
+
+### SSOT Reference
+
+The theme file (`src/shared/theme/defaultTheme.ts`) is the **Single Source of Truth** for:
+- All color definitions (palette)
+- Typography (font families, sizes, weights)
+- Component style overrides
+- Design tokens (spacing, shadows, borders)
+
+See the theme file header for detailed principles.
+
+## Linting Standards
+
+### ESLint Configuration (SSOT)
+
+**CRITICAL:** `.eslintrc.json` is the **Single Source of Truth** for all linting rules enforced by the pre-commit hook.
+
+ESLint enforces the following rules (in addition to complexity):
+
+- **Unused Variables/Imports**: 
+  - Unused imports are **errors** (`unused-imports/no-unused-imports: error`)
+  - Unused variables are **warnings** (`unused-imports/no-unused-vars: warn`)
+  - Prefix unused variables/parameters with `_` to suppress warnings (e.g., `_messageId`, `_isLoadingLimit`)
+  - **Always remove unused imports** - they add no value and clutter the code
+
+- **Import Order**:
+  - Enforced by `import/order` rule (error level)
+  - Groups: builtin → external → internal → parent → sibling → index → type
+  - React imports first, then `@/**` path aliases
+  - Alphabetical within groups
+
+- **Architecture Boundaries**:
+  - Enforced by `boundaries/element-types` rule (error level)
+  - Prevents importing from forbidden layers (see `architecture/RULE.md`)
+  - Use `eslint-disable` comments with justification for legitimate exceptions
+
+- **React Hooks**:
+  - Enforced by `react-hooks/exhaustive-deps` rule (warning level)
+  - All dependencies must be included in dependency arrays
+  - Use `user` not `user?.uid` if accessing `user` properties
+
+- **TypeScript Type Safety**:
+  - Enforced by TypeScript compiler (`tsc --noEmit` in pre-commit)
+  - All type errors must be fixed before commit
+  - Optional properties must be marked with `?` in interfaces
+
+### Default Linting Tool: GTS (Google TypeScript Style)
+- **Default**: Use `npx gts lint --fix` for TypeScript projects
+- GTS provides consistent formatting and style enforcement
+- Run linting before committing code
+- Fix all linter errors (warnings are acceptable)
+
+### Override Option
+- Projects may specify alternative linting tools if needed
+- Document the chosen linting tool in project documentation
+- Ensure linting is automated and runs before commits
+- Common alternatives: ESLint, Biome, etc.
+
+### Complexity Standards
+
+**SSOT:** `.eslintrc.json` lines 65-70 (enforced by ESLint during `pnpm lint`)
+
+When writing code, adhere to these complexity limits to ensure maintainability:
+
+| Metric | Limit | Guideline |
+|--------|-------|-----------|
+| Cyclomatic Complexity | ≤ 10 | Max branches/paths per function |
+| Cognitive Complexity | ≤ 15 | Max mental effort to understand |
+| Nesting Depth | ≤ 4 | Max `if`/`for`/`while` nesting levels |
+| Function Length | ≤ 100 lines | Excluding blank lines and comments |
+| Parameters | ≤ 5 | Use options object for more |
+| Statements | ≤ 20 | Max statements per function |
+
+**Reducing Complexity:**
+- Extract helper functions for complex logic
+- Use early returns to reduce nesting
+- Replace nested conditionals with guard clauses
+- Use options objects instead of many parameters
+- Split large functions by responsibility
+
+**Reference:** See `.cursor/skills/optimize2/SKILL.md` for detailed refactoring workflow and examples.
+
+### TypeScript Configuration
+- **REQUIRED**: All TypeScript projects must use strict mode (see Quick Reference)
+- Enable `strict: true` in `tsconfig.json`
+
+### TypeScript Best Practices
+See Quick Reference for critical rules. Additional guidelines:
+- **Explicit return types**: Required for async functions
+- **Services**: Pure functions only (no React hooks)
+
+```typescript
+export interface User {
+  id: string;
+  email: string;
+}
+
+export const fetchData = async (id: string): Promise<User | null> => {
+  // Pure function, no hooks
+};
+```
+
+## TypeScript/React Standards
+
+When working with TypeScript and React:
+
+### Component Structure
+- Clear import order (external libraries first, then internal modules)
+- JSDoc for all exported interfaces and types
+- Explicit return types for all exported functions
+- Use `readonly` for props that must not change
+
+### State Management
+- Explicit typing of state using generics: `useState<Type | null>(null)`
+- Use `useCallback` for functions passed as dependencies
+- Use `useEffect` for side-effects like data fetching
+- Use `void` to indicate when promises are intentionally not awaited
+
+### Error Handling
+- Catch errors with `unknown` type and check the type
+- Provide meaningful error messages
+- Handle loading and error states explicitly
+
+---
+
+## Related Rules
+
+**When modifying this rule, check these rules for consistency:**
+
+- `architecture/RULE.md` - May reference naming conventions for architectural patterns
+- `testing/RULE.md` - May reference code style for test files
+- `workflow/RULE.md` - May reference formatting standards in review process
+- `.cursor/skills/optimize2/SKILL.md` - Detailed complexity reduction / optimization workflow
+
+**Rules that reference this rule:**
+- All other rules may reference code style standards
+
+**SSOT:**
+- Complexity thresholds: `.eslintrc.json` lines 65-70
