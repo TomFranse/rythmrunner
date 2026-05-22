@@ -49,7 +49,7 @@ Services: `beatGridArrangementService`, `beatGridRoleService`, `getArpeggiatedMi
 rhythm/
 ├── components/       # Session UI, permission gate, dev simulator panel
 ├── hooks/            # useDeviceMotion, useStepDetection, useRhythmAudio
-├── services/         # Steps, beatgrid math, sample library, audio engine
+├── services/         # Motion sampling, steps, beatgrid math, sample library, audio engine
 ├── types/            # rhythm.types.ts
 └── README.md
 ```
@@ -59,7 +59,12 @@ rhythm/
 - **tone** — Web Audio transport and per-layer gain/limiter
 - **soundfont-player** — gleitz FluidR3_GM sample loading
 - **@mui/material** — session UI
-- **Browser APIs** — `DeviceMotionEvent`, Web Audio user activation on Start
+- **Browser APIs** — `DeviceMotionEvent` (linear acceleration; gravity subtracted when needed), Web Audio user activation on Start
+
+## Motion sampling
+
+- **`motionSamplingService`**: Reads `acceleration` when present; otherwise high-passes `accelerationIncludingGravity` so magnitude is near zero at rest.
+- **`useDeviceMotion`**: Feeds corrected samples into step detection (accelerometer, not gyroscope).
 
 ## Development
 
