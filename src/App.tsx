@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import { QueryProvider } from "@shared/context/QueryProvider";
 import { viewportMainSx, viewportRootSx } from "@shared/utils/viewportLayout";
 import { MainLayout } from "@/layouts/MainLayout/MainLayout";
+import { InstallAppPrompt } from "@/components/common/InstallAppPrompt";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
 
@@ -12,6 +13,7 @@ const HomePage = lazy(() => import("@pages/HomePage").then((m) => ({ default: m.
 function AppContent() {
   return (
     <Box sx={viewportRootSx}>
+      <InstallAppPrompt />
       <Box component="main" sx={viewportMainSx(0)}>
         <QueryErrorBoundary>
           <Suspense fallback={<PageLoadingState />}>

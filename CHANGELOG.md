@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-05-22
+
+### Added
+
+- **PWA install**: Web app manifest, service worker, and `InstallAppPrompt` for Android install and iOS Add to Home Screen guidance.
+- **App branding**: Yellow circle logo (`icon.svg`) with favicon, Apple touch icon, and 192/512 manifest icons.
+
+### Changed
+
+- **Dependencies**: `vite-plugin-pwa`, `workbox-window`; removed default Vite favicon.
+
 ## [0.23.1] - 2026-05-22
 
 ### Changed
