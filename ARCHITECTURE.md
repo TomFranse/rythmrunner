@@ -15,27 +15,14 @@ src/
 │       ├── Card/
 │       ├── Input/
 │       ├── Modal/
-│       ├── ProfileMenu/
 │       └── Topbar.tsx
-├── config/              # Configuration files (Entreefederatie, etc.)
 ├── features/            # Feature modules (business logic)
-│   ├── auth/
-│   │   ├── components/  # Feature-specific UI components
-│   │   ├── hooks/       # React hooks for feature logic
-│   │   ├── services/    # Pure functions, API calls
-│   │   └── types/       # TypeScript types for feature
-│   ├── setup/
-│   │   ├── components/  # Setup wizard UI components
-│   │   │   └── sections/ # Setup section components
-│   │   ├── hooks/       # Setup-related hooks
-│   │   └── services/    # Setup-related services (API calls)
+│   └── rhythm/          # Beat generation from gyro data
 ├── layouts/             # Layout components
 │   └── MainLayout/      # Main layout component
 ├── pages/               # Route-level page components
 ├── shared/              # Shared across features
-│   ├── context/         # React contexts (AuthContext, etc.)
-│   ├── hooks/           # Shared hooks (useSupabaseConfig, etc.)
-│   ├── services/        # Shared services (Supabase client, Airtable client)
+│   ├── context/         # React contexts (QueryProvider, etc.)
 │   ├── types/           # Shared types
 │   ├── utils/           # Shared utility functions
 │   └── theme/           # MUI theme configuration
@@ -49,13 +36,11 @@ src/
 
 Server state (user profiles, config, API data) is managed by **TanStack Query**. It provides caching, deduplication, and stale-while-revalidate. The app wraps content in `QueryProvider` (see `App.tsx`).
 
-**Provider hierarchy:** `QueryProvider` → `AuthProvider` → `BrowserRouter` → routes
+**Provider hierarchy:** `QueryProvider` → `BrowserRouter` → routes
 
 **Key conventions:**
 
 - **Query keys:** Shared keys in `src/shared/utils/queryKeys.ts` – feature keys in `features/[feature]/api/keys.ts`
-- **Auth boundary:** On logout, `queryClient.clear()` in `authService.logout` (before `signOut()`)
-- **Features:** `useUserProfileQuery` (auth), `useConfigurationQuery` (setup) – legacy wrappers (`useUserProfile`, `useConfigurationData`) remain for backward compatibility
 
 See `documentation/DOC_TANSTACK_QUERY.md` for full reference.
 
@@ -83,8 +68,7 @@ Use **`@/`** path aliases only — never relative parent imports (`../`). Full m
 ```typescript
 // ✅ Good
 import { Button } from "@/components/common/Button";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { supabase } from "@/services/supabaseService";
+import { HomePage } from "@/pages/HomePage";
 
 // ❌ Bad
 import { Button } from "../../../components/common/Button";
@@ -369,11 +353,11 @@ These rules are defined in `eslint.config.js` using GTS's flat config format.
 | `@/lib/*` | `src/lib/*` |
 | `@/ai-capabilities/*` | `src/ai-capabilities/*` |
 
-**Feature modules:** import with `@/features/<feature>/...` (e.g. `@/features/auth/hooks/useAuth`).
+**Feature modules:** import with `@/features/<feature>/...` (e.g. `@/features/rhythm/hooks/...`).
 
 **Also:** `tsconfig.app.json` / `vite.config.ts` define legacy shortcuts (`@features/*`, `@shared/*`, `@pages/*`, `@utils/*` → `src/utils`, etc.). Existing files may still use them; **prefer `@/`** for new work so imports match the architecture rule and reviews.
 
-**Note:** Root-level helpers under `src/utils/` are imported as `@/utils/...` via the `src/*` base (e.g. `@/utils/setupUtils`). Shared utilities belong in `src/shared/utils/` when used across features.
+**Note:** Root-level helpers under `src/utils/` are imported as `@/utils/...` via the `src/*` base. Shared utilities belong in `src/shared/utils/` when used across features.
 
 ## API Integration
 

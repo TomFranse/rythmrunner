@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-05-22
+
+### Removed
+
+- **Boilerplate setup wizard**: `src/features/setup/`, `SetupPage`, dev API plugin (`vite-plugin-dev-api.ts`), `app.config.json`, and related scripts/docs.
+- **Auth and login**: `src/features/auth/`, `AuthContext`, `ProfileMenu`, auth callback route, and redirect utilities.
+- **Supabase and Airtable**: client libraries, shared services/hooks, Airtable CLI scripts, and agent skills.
+- **Onboarding skills**: `/start` and `/complete-setup` cursor skills (setup flow no longer applies).
+
+### Changed
+
+- **App shell**: Single home route for Rhythm Runner; simplified `Topbar`, `HomePage`, and `App.tsx` (no auth provider).
+- **Project identity**: Package name `rythmrunner`, page title, and branding updated from starter template.
+- **CI and tooling**: Dropped `validate:app-config` step; updated `projectStructure.config.cjs`, docs index, and cursor rules/skills for the leaner codebase.
+
+### Added
+
+- **`src/features/rhythm/`**: Feature placeholder README for gyro-driven beat generation work.
+
 ## [0.19.1] - 2026-04-19
 
 ### Changed

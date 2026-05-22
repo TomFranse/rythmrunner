@@ -135,18 +135,18 @@ Supabase uses Row Level Security (RLS). Always include `userId` in the query key
 ```tsx
 import { render, screen } from "@testing-library/react";
 import { createQueryClientWrapper } from "@/../tests/test-utils";
-import { ProfileMenu } from "../ProfileMenu";
+import { HomePage } from "@pages/HomePage";
 
 // When testing components that use useQuery/useMutation without mocking:
-render(<ProfileMenu />, {
+render(<HomePage />, {
   wrapper: createQueryClientWrapper(),
 });
 ```
 
 ### When to use
 
-- **Use wrapper:** When rendering components that call `useUserProfile`, `useConfigurationData`, or other query hooks without mocking them
-- **Mock instead:** When you want to control the returned data (e.g. `vi.mock("@features/auth/hooks/useUserProfile")`)
+- **Use wrapper:** When rendering components that call query hooks without mocking them
+- **Mock instead:** When you want to control the returned data (e.g. `vi.mock("@features/rhythm/hooks/useBeats")`)
 
 ### Service tests
 
@@ -154,46 +154,13 @@ Mock `queryClient` in service tests when the service uses it (e.g. invalidation 
 
 ### Not covered by automated tests
 
-Unit tests cover hooks and services. The following require **manual verification**:
-
-- Login/logout flow and cache clear on logout
-- Prefetching on hover over Setup links
-- Cached data when navigating back
-
-See `documentation/jobs/implementation-plan-tanstack-query.md` – Step 9 "Not covered by automated tests".
-
-## Prefetching
-
-**File:** `src/shared/hooks/usePrefetch.ts`
-
-- Use `prefetchSetup` on hover over Setup links to preload config data
-- **Rule:** Only prefetch for critical routes; measure before adding more
-
-```tsx
-const { prefetchSetup } = usePrefetch();
-<Link to="/setup" onMouseEnter={prefetchSetup}>
-  Setup
-</Link>;
-```
+Unit tests cover hooks and services. Prefetching and auth flows require manual verification when added to a feature.
 
 ## Lazy loading + Suspense
 
-- Lazy load heavy pages: `lazy(() => import("@pages/SetupPage"))`
+- Lazy load heavy pages: `lazy(() => import("@pages/HomePage"))`
 - Wrap routes in `<Suspense fallback={<PageLoadingState />}>`
 - Cached query data + code splitting = fast navigation on return visits
-
-## Supabase Realtime (Optional)
-
-When using Supabase Realtime (INSERT/UPDATE broadcasts via WebSockets), TanStack Query cache does not update automatically. Add a listener that calls `queryClient.invalidateQueries()` when the channel receives a change:
-
-```typescript
-// Example: features/projects/hooks/useProjectsRealtime.ts
-supabase.channel('projects').on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-  queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
-}).subscribe();
-```
-
-Place this in a hook or effect that runs when the relevant data is in scope.
 
 ## Error Boundary
 
@@ -210,8 +177,6 @@ Configured in `queryClient.ts`:
 - **Queries:** Retry up to 2 times, exponential backoff (1s, 2s, max 30s). No retry on 404.
 - **Mutations:** No retry (default).
 - **Tests:** `createTestQueryClient()` uses `retry: false` for deterministic tests.
-
-**Supabase:** When using Supabase, use `PostgrestError` from `@supabase/supabase-js` for type-safe error handling. Check `error.code` (e.g. `PGRST116` for 404, `23503` for foreign key violations) instead of generic `"status" in error`. Improves retry logic and QueryErrorBoundary handling.
 
 ## Migration Strategy for New Features
 
