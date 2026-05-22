@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.1] - 2026-05-22
+
+### Fixed
+
+- **Mobile step detection at rest**: Prefer linear `DeviceMotionEvent.acceleration` and subtract gravity when only `accelerationIncludingGravity` is available, so a still phone no longer reports ~300 BPM from constant ~9.8 m/s² magnitude.
+
+### Tests
+
+- **`motionSamplingService`**: Gravity subtraction, linear-acceleration preference, and still-phone BPM regression coverage.
+
 ## [0.24.0] - 2026-05-22
 
 ### Added

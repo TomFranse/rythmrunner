@@ -4,6 +4,10 @@ import {
   magnitudeForSimulatorPeak,
   DEFAULT_SIMULATOR_BPM,
 } from "@/features/rhythm/services/motionSimulatorService";
+import {
+  createGravityEstimator,
+  sampleFromDeviceMotion,
+} from "@/features/rhythm/services/motionSamplingService";
 import { computeMagnitude } from "@/features/rhythm/services/stepDetectionService";
 import type { MotionSample } from "@/features/rhythm/types/rhythm.types";
 import { isMotionSupported } from "@/features/rhythm/services/motionPermissionService";
@@ -21,27 +25,22 @@ export function useDeviceMotion({
 }: UseDeviceMotionOptions) {
   const [latestSample, setLatestSample] = useState<MotionSample | null>(null);
   const simulatorNextAt = useRef(0);
+  const gravityEstimatorRef = useRef(createGravityEstimator());
 
   const handleMotion = useCallback((event: DeviceMotionEvent) => {
-    const acc = event.accelerationIncludingGravity;
-    if (!acc) {
+    const sample = sampleFromDeviceMotion(event, gravityEstimatorRef.current);
+    if (sample === null) {
       return;
     }
-    const x = acc.x ?? 0;
-    const y = acc.y ?? 0;
-    const z = acc.z ?? 0;
-    setLatestSample({
-      x,
-      y,
-      z,
-      timestamp: event.timeStamp || Date.now(),
-    });
+    setLatestSample(sample);
   }, []);
 
   useEffect(() => {
     if (!enabled) {
       return undefined;
     }
+
+    gravityEstimatorRef.current = createGravityEstimator();
 
     if (simulatorEnabled || !isMotionSupported()) {
       const intervalMs = intervalMsForBpm(simulatorBpm);
