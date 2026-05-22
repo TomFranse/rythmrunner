@@ -229,11 +229,21 @@ export const defaultThemeOptions: ThemeOptions = {
             backgroundColor: alpha(COLORS.text.primary, 0.5),
           },
         },
+        html: {
+          height: "100%",
+        },
         body: {
           margin: 0,
-          minHeight: "100vh",
+          minHeight: ["100vh", "100dvh"],
+          height: "100%",
           WebkitFontSmoothing: "antialiased",
           MozOsxFontSmoothing: "grayscale",
+        },
+        "#root": {
+          minHeight: ["100vh", "100dvh"],
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
         },
       },
     },

@@ -184,36 +184,44 @@ De huidige branding/placeholder vermeldt *gyroscope data*. Voor **stappendetecti
 
 **Pitch-stabiliteit:** Individuele samples worden getriggerd op transport-ticks; tempo-wijziging past **interval** aan, niet ad-hoc `playbackRate` per hit (voorkomt drift tussen lagen).
 
-### 4.2 Instrumentatie & layering
+### 4.2 Instrumentatie & layering (geïmplementeerd: beatgrid)
 
-| Laag | Instrument | Gedrag vs BPM |
-| :--- | :--- | :--- |
-| **Rhythm** | Drumkit (samples) | Kick/snare/hihat-pattern; dichtheid stijgt met BPM |
-| **Harmony** | Piano (soundfont) | Akkoorden/arp; extra voices boven drempel BPM |
-| **Master** | Limiter / gain | Voorkomt clipping bij meerdere gelijktijdige voices |
+| Laag | Duur (beats) | Actief in cyclus | Gain |
+| :--- | :--- | :--- | :--- |
+| **L64** | 64 | 0–63 | −12 dB |
+| **L32** | 32 | 16–47 | −8 dB |
+| **L16** | 16 | 24–39 | −4 dB |
+| **L8** | 8 | 28–35 (piek: alle lagen) | 0 dB |
 
-**Geplande modules:**
+- **Overlap:** alle actieve lagen spelen tegelijk; geen ducking.
+- **Fade/cut:** 70% fade / 30% cut per laag per 64-beat cyclus; 4 beats fade in/out.
+- **Master:** `Tone.Limiter` + per-layer `Tone.Gain`.
+
+**Modules:**
 
 ```
 src/features/rhythm/
-├── services/audioEngineService.ts      # Tone context, Transport, dispose
-├── services/drumPatternService.ts      # Pattern tables per BPM band
-├── services/pianoLayerService.ts       # Layer unlock logic
+├── services/audioEngineService.ts      # Transport lifecycle, delegates beatgrid
+├── services/beatGridAudioService.ts    # scheduleRepeat 4n, triggers, UI state
+├── services/beatGridLayerService.ts    # Window math, humanize, gain dB
+├── services/beatGridCycleService.ts    # Fade/cut + instrument assignment
+├── services/sampleLibraryService.ts    # soundfont-player + gleitz CDN
+├── services/beatGridCatalog.ts         # Curated instrument names
 ├── hooks/useRhythmAudio.ts             # Bridge BPM → Transport
-└── types/rhythm.types.ts               # BpmRange, LayerId, SessionState
+└── types/rhythm.types.ts               # BeatGridLayerId, AudioLayerState
 ```
 
 ### 4.3 Sample loading
 
-- Bibliotheek: [`midi-js-soundfonts`](https://github.com/gleitz/midi-js-soundfonts) (of subset via CDN).
-- Lazy load per instrument bij eerste sessie.
-- Cache in memory; geen herhaalde fetch tijdens run.
+- Bibliotheek: gleitz **FluidR3_GM** via [`soundfont-player`](https://www.npmjs.com/package/soundfont-player) (CDN: `midi-js-soundfonts`).
+- Per 64-beat cyclus: vier willekeurige instrumenten (één per laag), onafhankelijk uit catalog.
+- Cache in memory per instrumentnaam; vorige sample blijft bij load-fout.
 
 ### 4.4 Cold start & signaalverlies
 
 | Scenario | Muziekgedrag |
 | :--- | :--- |
-| App start / tap Start | 60 BPM, basis drumloop |
+| App start / tap Start | 60 BPM, L64-laag (volledige cyclus) |
 | Eerste 4 stappen gedetecteerd | Ramp naar gemeten BPM (bijv. 300–800 ms) |
 | Tijdelijk geen stappen (<3 s) | Houd laatste BPM |
 | Langdurig geen stappen (>3 s) | Zelfde: geen reset (flow-state) |

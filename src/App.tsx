@@ -1,8 +1,8 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { QueryProvider } from "@shared/context/QueryProvider";
-import { Topbar } from "@/components/common/Topbar";
+import { viewportMainSx, viewportRootSx } from "@shared/utils/viewportLayout";
 import { MainLayout } from "@/layouts/MainLayout/MainLayout";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
@@ -10,16 +10,9 @@ import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
 const HomePage = lazy(() => import("@pages/HomePage").then((m) => ({ default: m.HomePage })));
 
 function AppContent() {
-  const theme = useTheme();
-
   return (
-    <>
-      <Topbar />
-      <Box
-        sx={{
-          pt: `${theme.mixins.toolbar.minHeight}px`,
-        }}
-      >
+    <Box sx={viewportRootSx}>
+      <Box component="main" sx={viewportMainSx(0)}>
         <QueryErrorBoundary>
           <Suspense fallback={<PageLoadingState />}>
             <Routes>
@@ -31,7 +24,7 @@ function AppContent() {
           </Suspense>
         </QueryErrorBoundary>
       </Box>
-    </>
+    </Box>
   );
 }
 

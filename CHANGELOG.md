@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-05-22
+
+### Added
+
+- **Beatgrid audio layering**: 64-beat cycle with four duration layers (64/32/16/8), gleitz FluidR3_GM soundfonts via `soundfont-player`, harmonic voicing (I–IV–I–V), and 70/30 fade vs cut envelopes.
+- **Beatgrid services**: `beatGridLayerService`, `beatGridCycleService`, `beatGridHarmonyService`, `beatGridAudioService`, `sampleLibraryService`, and `beatGridCatalog`.
+- **UI**: Four pulsing circles mapped to beatgrid layers; `PulsingCircles` test.
+
+### Changed
+
+- **Audio engine**: Quarter-note Transport schedule replaces BPM-band drum/piano synths; closer layer levels (−3 to 0 dB).
+- **Session UI**: Removed top bar, titles, and motion permission copy; minimal Enable motion button only.
+- **Viewport layout**: `viewportLayout` utilities for full-height session without toolbar offset.
+
+### Removed
+
+- **`drumPatternService`** and **`pianoLayerService`** (superseded by beatgrid).
+- **Topbar** and session marketing copy (title, subtitle, motion permission text).
+
+### Changed
+
+- **`documentation/DOC_SDD_RHYTHM_RUNNER.md`** and **`src/features/rhythm/README.md`**: Document implemented beatgrid architecture.
+
 ## [0.21.0] - 2026-05-22
 
 ### Added
