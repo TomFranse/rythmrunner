@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-05-22
+
+### Added
+
+- **Musical arrangement**: Section modes (intro, groove, build, peak, cooldown) gate which beatgrid layers trigger notes.
+- **Phrase rests**: Upper layers silent on beats 15, 31, 47, 63; L64 keeps bass anchor.
+- **Role separation**: Per-layer instruments (bass, pad, harmony, lead), trigger density, and note durations via `beatGridRoleService` and `ROLE_INSTRUMENT_GROUPS`.
+- **Arpeggiation**: `getArpeggiatedMidiForLayer` spreads chord tones across beats with per-layer phase offsets.
+- **Services and tests**: `beatGridArrangementService`, `beatGridRoleService`, and unit tests for arrangement, roles, and arpeggio.
+
+### Changed
+
+- **Beatgrid playback**: `beatGridAudioService` uses `shouldTriggerLayer`, role instruments, and role-based note lengths instead of one hit per active layer per beat.
+- **`src/features/rhythm/README.md`**: Documents section modes, phrase rests, roles, and arpeggio.
+
+### Documentation
+
+- **`documentation/jobs/temp_job_musical-arrangement/DEVELOPMENT_PLAN.md`**: Implementation record for musical arrangement upgrade.
+
 ## [0.22.1] - 2026-05-22
 
 ### Fixed

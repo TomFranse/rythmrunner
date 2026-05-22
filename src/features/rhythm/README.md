@@ -16,10 +16,26 @@ Synchronize generated music with the runner's cadence (BPM) using a **64-beat ma
 | L8 | 28–35 (peak overlap) | 0 dB |
 
 - **Transport:** `Tone.Transport.scheduleRepeat` at `"4n"` (one callback per beat).
-- **Samples:** gleitz FluidR3_GM via `soundfont-player`; one consonant timbre per cycle (shared across layers).
-- **Harmony:** major-key chord progression (I–IV–I–V per 16-beat section); layers play root, fifth, third, and octave — not random chromatic pitches.
+- **Samples:** gleitz FluidR3_GM via `soundfont-player`; **one instrument per role** per cycle (bass / pad / harmony / lead).
+- **Harmony:** major-key chord progression (I–IV–I–V per 16-beat section); **arpeggiated** chord tones (root, 3rd, 5th, octave) with per-layer phase offsets.
+- **Arrangement:** section modes (intro → groove → build → peak → cooldown) gate which layers may trigger; phrase rests on beats 15, 31, 47, 63.
+- **Roles:** bass (long notes), pad (every 4th beat, sustained), harmony (short), lead (staccato).
 - **Envelope:** 70% fade / 30% hard-cut per layer per cycle; 4-beat fades when fading.
 - **Humanize:** ±25 ms per hit (capped at 12% of beat length).
+
+## Musical arrangement
+
+| Section mode | Beats | Layers that may trigger |
+|--------------|-------|-------------------------|
+| intro | 0–15 | L64 |
+| groove | 16–23 | L64, L32 |
+| build | 24–27 | L64, L32, L16 |
+| peak | 28–39 | all four |
+| cooldown | 40–63 | L64; L32 while window ON (40–47) |
+
+Phrase rests suppress L32, L16, and L8 on beats 15, 31, 47, 63 (L64 keeps the bass anchor). UI envelopes still follow `isLayerActive`; only note triggers use `shouldTriggerLayer`.
+
+Services: `beatGridArrangementService`, `beatGridRoleService`, `getArpeggiatedMidiForLayer` in `beatGridHarmonyService`.
 
 ## Visual sync
 
@@ -51,3 +67,4 @@ rhythm/
 - Dev simulator: enable on Home when motion is unavailable or for desktop testing
 - Design reference: `documentation/DOC_SDD_RHYTHM_RUNNER.md`
 - Implementation plan: `documentation/jobs/temp_job_beatgrid-layering/DEVELOPMENT_PLAN.md`
+- Musical arrangement: `documentation/jobs/temp_job_musical-arrangement/DEVELOPMENT_PLAN.md`

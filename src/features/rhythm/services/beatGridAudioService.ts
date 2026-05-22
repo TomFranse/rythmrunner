@@ -5,12 +5,16 @@ import {
   mergeCycleInstruments,
   type BeatGridCycleConfig,
 } from "@/features/rhythm/services/beatGridCycleService";
+import { shouldTriggerLayer } from "@/features/rhythm/services/beatGridArrangementService";
 import {
-  assignConsonantInstruments,
   createCycleHarmony,
-  getHarmonicMidiForLayer,
+  getArpeggiatedMidiForLayer,
   type CycleHarmony,
 } from "@/features/rhythm/services/beatGridHarmonyService";
+import {
+  assignRoleInstruments,
+  getNoteDurationRatio,
+} from "@/features/rhythm/services/beatGridRoleService";
 import {
   BEAT_GRID_LAYER_IDS,
   computeHumanizeSeconds,
@@ -28,8 +32,6 @@ import type {
   BeatGridLayerUiState,
   SoundfontInstrument,
 } from "@/features/rhythm/types/rhythm.types";
-
-const NOTE_DURATION_RATIO = 0.85;
 
 let scheduleId: number | null = null;
 let globalBeatIndex = 0;
@@ -153,7 +155,7 @@ function startNewCycle(beatInCycle: number): void {
   if (beatInCycle !== 0) {
     return;
   }
-  const instruments = assignConsonantInstruments();
+  const instruments = assignRoleInstruments();
   cycleHarmony = createCycleHarmony();
   cycleConfig = mergeCycleInstruments(createCycleConfig(), instruments);
   void loadLayerInstruments(instruments);
@@ -184,10 +186,9 @@ function triggerActiveLayers(time: number, beatInCycle: number, bpm: number): vo
     return;
   }
   const beatSeconds = getBeatDurationSeconds(bpm);
-  const noteDuration = beatSeconds * NOTE_DURATION_RATIO;
 
   for (const layerId of BEAT_GRID_LAYER_IDS) {
-    if (!isLayerActive(layerId, beatInCycle)) {
+    if (!shouldTriggerLayer({ layerId, beatInCycle })) {
       continue;
     }
     const instrument = layerInstruments[layerId];
@@ -195,8 +196,9 @@ function triggerActiveLayers(time: number, beatInCycle: number, bpm: number): vo
       continue;
     }
     const humanize = computeHumanizeSeconds(bpm);
-    const midi = getHarmonicMidiForLayer(layerId, beatInCycle, cycleHarmony);
+    const midi = getArpeggiatedMidiForLayer(layerId, beatInCycle, cycleHarmony);
     const linearGain = dbToLinearGain(getTargetGainDb(layerId));
+    const noteDuration = beatSeconds * getNoteDurationRatio(layerId);
     playNote({
       instrument,
       midi,

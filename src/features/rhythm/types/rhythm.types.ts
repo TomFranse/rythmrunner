@@ -18,6 +18,10 @@ export interface StepDetectionState {
 
 export type BeatGridLayerId = "L64" | "L32" | "L16" | "L8";
 
+export type BeatGridSectionMode = "intro" | "groove" | "build" | "peak" | "cooldown";
+
+export type BeatGridLayerRole = "bass" | "pad" | "harmony" | "lead";
+
 export type BeatGridFadeMode = "fade" | "cut";
 
 export type BeatGridEnvelopeAction = "fadeIn" | "fadeOut" | "hold" | "cutOn" | "cutOff" | "silent";

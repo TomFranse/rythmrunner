@@ -6,12 +6,15 @@ const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11] as const;
 /** One chord per 16-beat section: I – IV – I – V (scale degrees 0, 3, 0, 4) */
 const SECTION_CHORD_DEGREE = [0, 3, 0, 4] as const;
 
-/** Layer role: chord tone offset in semitones from section root (within octave) */
-const LAYER_CHORD_SEMITONES: Record<BeatGridLayerId, number> = {
+/** Arpeggio pattern: root, 3rd, 5th, octave (semitones from chord root) */
+const ARPEGGIO_SEMITONES = [0, 4, 7, 12] as const;
+
+/** Phase offset so layers interlock on consecutive beats */
+const LAYER_ARPEGGIO_PHASE: Record<BeatGridLayerId, number> = {
   L64: 0,
-  L32: 7,
-  L16: 4,
-  L8: 12,
+  L32: 1,
+  L16: 2,
+  L8: 3,
 };
 
 /** Base octave MIDI (C3) — layers stay in complementary registers */
@@ -56,20 +59,37 @@ function getSectionChordRootPc(harmony: CycleHarmony, beatInCycle: number): numb
   return scaleDegreeToSemitones(harmony.tonicPitchClass, chordDegree);
 }
 
+function chordRootPcToMidi(chordRootPc: number, baseMidi: number, semitoneOffset: number): number {
+  const basePc = baseMidi % 12;
+  const targetPc = (chordRootPc + semitoneOffset) % 12;
+  const interval = (targetPc - basePc + 12) % 12;
+  return baseMidi + interval;
+}
+
 /**
- * MIDI note for a layer: chord tone in a fixed register (consonant when layers stack).
+ * MIDI note for a layer: arpeggiated chord tone with per-layer phase offset.
  */
-export function getHarmonicMidiForLayer(
+export function getArpeggiatedMidiForLayer(
   layerId: BeatGridLayerId,
   beatInCycle: number,
   harmony: CycleHarmony
 ): number {
   const chordRootPc = getSectionChordRootPc(harmony, beatInCycle);
   const baseMidi = LAYER_BASE_MIDI[layerId];
-  const basePc = baseMidi % 12;
-  const targetPc = (chordRootPc + LAYER_CHORD_SEMITONES[layerId]) % 12;
-  const interval = (targetPc - basePc + 12) % 12;
-  return baseMidi + interval;
+  const arpIndex = (beatInCycle % 4) + (LAYER_ARPEGGIO_PHASE[layerId] % ARPEGGIO_SEMITONES.length);
+  const semitoneOffset = ARPEGGIO_SEMITONES[arpIndex % ARPEGGIO_SEMITONES.length] ?? 0;
+  return chordRootPcToMidi(chordRootPc, baseMidi, semitoneOffset);
+}
+
+/**
+ * @deprecated Use getArpeggiatedMidiForLayer for playback.
+ */
+export function getHarmonicMidiForLayer(
+  layerId: BeatGridLayerId,
+  beatInCycle: number,
+  harmony: CycleHarmony
+): number {
+  return getArpeggiatedMidiForLayer(layerId, beatInCycle, harmony);
 }
 
 export function assignConsonantInstruments(
