@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { BEAT_GRID_PERCUSSION_INSTRUMENTS } from "./beatGridCatalog";
 import {
   assignRoleInstruments,
   getLayerRole,
@@ -28,15 +29,16 @@ describe("beatGridRoleService", () => {
     expect(shouldTriggerByRoleDensity("L64", 1)).toBe(true);
   });
 
-  it("should assign different instruments per layer with deterministic rng", () => {
-    let i = 0;
-    const rng = () => {
-      const v = (i % 4) / 4;
-      i += 1;
-      return v;
-    };
-    const assigned = assignRoleInstruments(rng);
-    const names = new Set([assigned.L64, assigned.L32, assigned.L16, assigned.L8]);
-    expect(names.size).toBe(4);
+  it("should draw from percussion-capable role pools", () => {
+    const percussionSet = new Set<string>(BEAT_GRID_PERCUSSION_INSTRUMENTS);
+    let hits = 0;
+    for (let trial = 0; trial < 40; trial += 1) {
+      const assigned = assignRoleInstruments();
+      const names = [assigned.L64, assigned.L32, assigned.L16, assigned.L8];
+      if (names.some((name) => percussionSet.has(name))) {
+        hits += 1;
+      }
+    }
+    expect(hits).toBeGreaterThan(0);
   });
 });

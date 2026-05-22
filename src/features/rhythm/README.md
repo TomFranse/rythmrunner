@@ -16,7 +16,7 @@ Synchronize generated music with the runner's cadence (BPM) using a **64-beat ma
 | L8 | 28–35 (peak overlap) | 0 dB |
 
 - **Transport:** `Tone.Transport.scheduleRepeat` at `"4n"` (one callback per beat).
-- **Samples:** gleitz FluidR3_GM via `soundfont-player`; **one instrument per role** per cycle (bass / pad / harmony / lead).
+- **Samples:** gleitz FluidR3_GM via `soundfont-player`; **one instrument per role** per cycle (bass / pad / harmony / lead). Role pools mix bass, pads, mallets, piano, and **drumkit** sounds (`BEAT_GRID_PERCUSSION_INSTRUMENTS`).
 - **Harmony:** major-key chord progression (I–IV–I–V per 16-beat section); **arpeggiated** chord tones (root, 3rd, 5th, octave) with per-layer phase offsets.
 - **Arrangement:** section modes (intro → groove → build → peak → cooldown) gate which layers may trigger; phrase rests on beats 15, 31, 47, 63.
 - **Roles:** bass (long notes), pad (every 4th beat, sustained), harmony (short), lead (staccato).

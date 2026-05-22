@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-05-22
+
+### Changed
+
+- **Beatgrid role instrument pools**: Add `BEAT_GRID_PERCUSSION_INSTRUMENTS` (kick, snare, hi-hats, cymbals, and related GM drums) to bass, pad, harmony, and lead pools so cycles can pick drumkit sounds instead of piano-only harmony.
+
+### Tests
+
+- **`beatGridRoleService.test.ts`**: Assert role assignment can draw from percussion-capable pools.
+
 ## [0.23.0] - 2026-05-22
 
 ### Added
