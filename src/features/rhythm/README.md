@@ -21,6 +21,12 @@ Synchronize generated music with the runner's cadence (BPM) using a **64-beat ma
 - **Envelope:** 70% fade / 30% hard-cut per layer per cycle; 4-beat fades when fading.
 - **Humanize:** ±25 ms per hit (capped at 12% of beat length).
 
+## Visual sync
+
+- **`PulsingCircles`**: One pulse per transport beat for active layers; duration matches `Tone.Transport` BPM.
+- **`useRhythmAudio`**: Subscribes to `subscribeBeatGridLayerState` on each scheduled beat so layer opacity/active state updates with audio.
+- **`beatTick`**: Monotonic beat counter in `AudioLayerState` restarts the pulse animation phase on every beat.
+
 ## Structure
 
 ```

@@ -13,8 +13,7 @@ const LAYER_COLORS = ["primary.main", "secondary.main", "info.main", "warning.ma
 
 export function PulsingCircles({ layers, bpm, reducedMotion }: PulsingCirclesProps) {
   const theme = useTheme();
-  const baseDuration = (60 / Math.max(bpm, 60)).toFixed(2);
-  const pulseDuration = reducedMotion ? "0s" : `${baseDuration}s`;
+  const beatDuration = (60 / Math.max(bpm, 1)).toFixed(3);
   const peakScale = layers.isPeak ? 1.14 : 1.08;
 
   return (
@@ -24,10 +23,11 @@ export function PulsingCircles({ layers, bpm, reducedMotion }: PulsingCirclesPro
         const size = theme.spacing(12 + index * 6);
         const colorKey = LAYER_COLORS[index % LAYER_COLORS.length];
         const opacity = layer.active ? 0.2 + layer.gain * 0.5 : 0.08;
+        const shouldPulse = !reducedMotion && layer.active;
 
         return (
           <Box
-            key={layerId}
+            key={`${layerId}-${layers.beatTick}`}
             sx={{
               position: "absolute",
               inset: 0,
@@ -37,13 +37,11 @@ export function PulsingCircles({ layers, bpm, reducedMotion }: PulsingCirclesPro
               borderRadius: "50%",
               bgcolor: colorKey,
               opacity,
-              animation:
-                reducedMotion || !layer.active
-                  ? "none"
-                  : `rhythmPulse ${pulseDuration} ease-in-out infinite`,
+              animation: shouldPulse ? `rhythmPulse ${beatDuration}s ease-out 1` : "none",
               "@keyframes rhythmPulse": {
-                "0%, 100%": { transform: "scale(0.92)" },
-                "50%": { transform: `scale(${peakScale})` },
+                "0%": { transform: "scale(0.92)" },
+                "45%": { transform: `scale(${peakScale})` },
+                "100%": { transform: "scale(0.92)" },
               },
             }}
           />

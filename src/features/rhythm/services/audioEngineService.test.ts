@@ -30,6 +30,7 @@ const {
     },
     isPeak: false,
     beatInCycle: 0,
+    beatTick: 0,
     masterGain: 0.8,
   })),
 }));

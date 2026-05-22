@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2026-05-22
+
+### Fixed
+
+- **Pulsing circles audio sync**: Subscribe React UI to each transport beat; drive one pulse per beat from transport BPM instead of a free-running CSS loop and step-detector tempo.
+
 ## [0.22.0] - 2026-05-22
 
 ### Added

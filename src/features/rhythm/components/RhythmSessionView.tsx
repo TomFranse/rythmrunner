@@ -20,7 +20,7 @@ export function RhythmSessionView() {
       <Box sx={viewportFlexibleRegionSx}>
         <PulsingCircles
           layers={session.layerState}
-          bpm={session.stepState.bpm}
+          bpm={session.transportBpm}
           reducedMotion={reducedMotion}
         />
       </Box>

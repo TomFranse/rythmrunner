@@ -22,6 +22,7 @@ const allActiveState: AudioLayerState = {
   },
   isPeak: true,
   beatInCycle: 30,
+  beatTick: 42,
   masterGain: 0.8,
 };
 

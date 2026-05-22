@@ -55,7 +55,7 @@ export function useRhythmSession() {
     timestamp: latestSample?.timestamp ?? null,
   });
 
-  const layerState = useRhythmAudio({
+  const { layerState, transportBpm } = useRhythmAudio({
     sessionPhase,
     bpm: stepState.bpm,
   });
@@ -124,6 +124,7 @@ export function useRhythmSession() {
     controlsVisible,
     stepState,
     layerState,
+    transportBpm,
     startError,
     setSimulatorEnabled,
     setSimulatorBpm,

@@ -31,6 +31,8 @@ export interface AudioLayerState {
   beatGridLayers: Record<BeatGridLayerId, BeatGridLayerUiState>;
   isPeak: boolean;
   beatInCycle: number;
+  /** Monotonic counter incremented each transport beat — drives visual pulse phase. */
+  beatTick: number;
   masterGain: number;
 }
 

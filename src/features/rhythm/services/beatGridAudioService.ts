@@ -45,6 +45,23 @@ let layerInstruments: Record<BeatGridLayerId, SoundfontInstrument | null> = {
 };
 
 let currentLayerState: AudioLayerState = createDefaultAudioLayerState();
+const layerStateListeners = new Set<(state: AudioLayerState) => void>();
+
+export function subscribeBeatGridLayerState(
+  listener: (state: AudioLayerState) => void
+): () => void {
+  layerStateListeners.add(listener);
+  listener(currentLayerState);
+  return () => {
+    layerStateListeners.delete(listener);
+  };
+}
+
+function notifyLayerStateListeners(): void {
+  for (const listener of layerStateListeners) {
+    listener(currentLayerState);
+  }
+}
 
 function createDefaultAudioLayerState(): AudioLayerState {
   const beatGridLayers = {} as Record<BeatGridLayerId, BeatGridLayerUiState>;
@@ -55,6 +72,7 @@ function createDefaultAudioLayerState(): AudioLayerState {
     beatGridLayers,
     isPeak: false,
     beatInCycle: 0,
+    beatTick: 0,
     masterGain: 0.8,
   };
 }
@@ -155,8 +173,10 @@ function updateUiLayerState(beatInCycle: number): void {
     beatGridLayers,
     isPeak: isPeakOverlap(beatInCycle),
     beatInCycle,
+    beatTick: currentLayerState.beatTick + 1,
     masterGain: currentLayerState.masterGain,
   };
+  notifyLayerStateListeners();
 }
 
 function triggerActiveLayers(time: number, beatInCycle: number, bpm: number): void {

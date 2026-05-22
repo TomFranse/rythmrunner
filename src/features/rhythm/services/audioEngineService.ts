@@ -4,6 +4,7 @@ import {
   getBeatGridLayerState,
   startBeatGridPlayback,
   stopBeatGridPlayback,
+  subscribeBeatGridLayerState,
 } from "@/features/rhythm/services/beatGridAudioService";
 import type { AudioLayerState } from "@/features/rhythm/types/rhythm.types";
 
@@ -32,6 +33,10 @@ export function getTransportBpm(): number {
 
 export function getAudioLayerState(): AudioLayerState {
   return getBeatGridLayerState();
+}
+
+export function subscribeAudioLayerState(listener: (state: AudioLayerState) => void): () => void {
+  return subscribeBeatGridLayerState(listener);
 }
 
 export function startRhythmPlayback(initialBpm: number): void {
