@@ -5,8 +5,24 @@ import {
   computeMagnitude,
   createStepDetector,
   processMotionSample,
-  DEBOUNCE_MS,
+  POST_PROCESS_WINDOW_MS,
+  TARGET_SAMPLE_RATE_HZ,
 } from "./stepDetectionService";
+
+/** Feed a synthetic stride at 50 Hz so the Oxford pipeline can lock tempo. */
+function feedStride(
+  state: ReturnType<typeof createStepDetector>,
+  peakTime: number,
+  peakMagnitude = 5,
+  valleyMagnitude = 0.5
+): ReturnType<typeof processMotionSample> {
+  let last = processMotionSample(state, valleyMagnitude, peakTime - 120);
+  for (let t = peakTime - 100; t <= peakTime + 100; t += 1000 / TARGET_SAMPLE_RATE_HZ) {
+    const magnitude = Math.abs(t - peakTime) < 15 ? peakMagnitude : valleyMagnitude;
+    last = processMotionSample(state, magnitude, t);
+  }
+  return last;
+}
 
 describe("stepDetectionService", () => {
   beforeEach(() => {
@@ -41,19 +57,13 @@ describe("stepDetectionService", () => {
   it("should converge near 180 BPM from synthetic peak train", () => {
     const state = createStepDetector();
     const intervalMs = Math.round((60 / 180) * 1000);
-    let now = 0;
+    let now = 500;
     let lastBpm = COLD_START_BPM;
 
-    for (let step = 0; step < 12; step += 1) {
+    for (let step = 0; step < 14; step += 1) {
       now += intervalMs;
-      for (let i = 0; i < 5; i += 1) {
-        processMotionSample(state, 0.6, now - 80 + i * 10);
-      }
-      const peak = processMotionSample(state, 5, now);
-      lastBpm = peak.bpm;
-      for (let i = 0; i < 8; i += 1) {
-        processMotionSample(state, 0.5, now + 20 + i * 15);
-      }
+      const result = feedStride(state, now);
+      lastBpm = result.bpm;
       vi.advanceTimersByTime(intervalMs);
     }
 
@@ -61,22 +71,21 @@ describe("stepDetectionService", () => {
     expect(lastBpm).toBeLessThanOrEqual(183);
   });
 
-  it("should debounce peaks within 200ms", () => {
+  it("should merge heel-toe double peaks within 200ms into one step", () => {
     const state = createStepDetector();
-    processMotionSample(state, 4.5, 0);
-    processMotionSample(state, 4.5, DEBOUNCE_MS - 1);
+    feedStride(state, 0);
+    feedStride(state, POST_PROCESS_WINDOW_MS - 20, 4.5, 0.5);
     expect(state.stepIntervalsMs).toHaveLength(0);
   });
 
   it("should enter fallback after 3s without peaks", () => {
     const state = createStepDetector();
     const intervalMs = 400;
-    let now = 0;
+    let now = 500;
 
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 8; i += 1) {
       now += intervalMs;
-      processMotionSample(state, 4.5, now);
-      processMotionSample(state, 0.5, now + 30);
+      feedStride(state, now);
     }
 
     const heldBpm = state.lastBpm;

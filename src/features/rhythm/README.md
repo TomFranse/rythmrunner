@@ -66,6 +66,10 @@ rhythm/
 - **`motionSamplingService`**: Reads `acceleration` when present; otherwise high-passes `accelerationIncludingGravity` so magnitude is near zero at rest.
 - **`useDeviceMotion`**: Feeds corrected samples into step detection (accelerometer, not gyroscope).
 
+## Step detection
+
+- **`stepDetectionService`**: Oxford-style windowed peak pipeline — resample to 50 Hz, 3 Hz FIR low-pass, causal mean-difference scoring, σ-threshold candidates, 200 ms max-per-window confirmation, rolling four intervals for BPM.
+
 ## Development
 
 - Unit tests: `pnpm test:run -- src/features/rhythm`
